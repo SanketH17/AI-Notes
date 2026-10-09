@@ -1963,7 +1963,15 @@ employees can work from home three days a week.
 
 The complete process looks like this:
 
-![](./imgs/img1.png)
+```mermaid
+flowchart TD
+    A([User Question]) --> B([Create Query Embedding])
+    B --> C([Search Vector Database])
+    C --> D([Retrieve Relevant Chunks])
+    D --> E([Combine Question and Retrieved Context])
+    E --> F([LLM])
+    F --> G([Generated Answer])
+```
 
 This is the central idea behind RAG.
 
