@@ -1708,3 +1708,463 @@ And the next question naturally becomes:
 > **"We found the relevant information in the vector database. How do we give that information to the LLM so it can answer the user?"**
 
 That is the problem that **RAG (Retrieval-Augmented Generation)** is introduced to solve.
+
+
+
+
+
+# Section 5 — How to Give ChatGPT Your Private Data: RAG
+
+## 1. The Problem: LLMs Don't Automatically Know Your Private Data
+
+Imagine a company wants to build an AI assistant that answers employees' questions about internal company policies.
+
+The company has many documents:
+
+- HR policies
+- Work-from-home policies
+- Technical documentation
+- Confluence pages
+- Architecture documents
+
+Now, employees want to ask questions such as:
+
+> "What is my company's work-from-home policy?"
+
+The company decides to use an existing LLM, such as GPT, Claude, Gemini, or Llama.
+
+However, there is a problem.
+
+The LLM may have learned general information during training, but it does not automatically know the company's private internal documents.
+
+These documents are not necessarily part of its training data.
+
+### How can we give this information to the LLM?
+
+One possible solution is to retrain the LLM using the company's internal documents.
+
+But retraining a large model can be expensive and time-consuming.
+
+We need another way to provide the model with the relevant company information whenever someone asks a question.
+
+This is the problem that RAG helps solve.
+
+## 2. What Is RAG?
+
+RAG stands for Retrieval-Augmented Generation.
+
+Let's understand the term in simple language:
+
+- Retrieval: Find relevant information from an external data source.
+- Augmented: Add that information to the context available to the LLM.
+- Generation: Let the LLM generate an answer using the question and the additional information.
+
+### Simple definition
+
+> RAG is a workflow that retrieves relevant information from an external knowledge source and provides it to an LLM so that the LLM can generate a more relevant answer.
+
+Instead of retraining the entire model with company documents, we retrieve the information needed for a particular question and give it to the model when it answers.
+
+The basic idea is:
+
+```
+User Question
+      |
+      v
+Find Relevant Information
+      |
+      v
+Give Information to the LLM
+      |
+      v
+Generate an Answer
+```
+
+## 3. Before Understanding RAG, Let's Understand Chunking
+
+In the previous section, we learned that embeddings are stored in a vector database.
+
+But what happens when a company has a huge PDF containing thousands of pages?
+
+Do we convert the entire PDF into one single embedding?
+
+No. Instead, the document is divided into smaller pieces called chunks.
+
+### What Is Chunking?
+
+> Chunking is the process of dividing a large document into smaller pieces of text.
+
+For example, imagine an HR policy document contains information about leave, work-from-home policies, and employee conduct.
+
+We can divide it into smaller chunks:
+
+```
+Original HR Policy Document
+          |
+          v
+   +-------------------+
+   |     Chunk 1       |
+   |    Leave Policy   |
+   +-------------------+
+          |
+          v
+   +-------------------+
+   |     Chunk 2       |
+   | Work-from-Home    |
+   +-------------------+
+          |
+          v
+   +-------------------+
+   |     Chunk 3       |
+   | Employee Conduct  |
+   +-------------------+
+```
+
+Each chunk contains a smaller portion of the original document.
+
+This makes it possible to retrieve the specific information relevant to a user's question rather than searching through an entire large document as one unit.
+
+### What Happens to Each Chunk?
+
+Each chunk goes through an embedding model to generate its embedding.
+
+The embedding and the associated information are then stored in a vector database.
+
+```
+Company Documents
+        |
+        v
+     Chunking
+        |
+        v
+   Individual Chunks
+        |
+        v
+   Embedding Model
+        |
+        v
+     Embeddings
+        |
+        v
+  Vector Database
+```
+
+Conceptually, each stored record can contain:
+
+| Field         | Purpose                                          |
+| ------------- | ------------------------------------------------ |
+| Chunk ID      | Identifies the stored chunk                      |
+| Original text | Contains the actual text                         |
+| Embedding     | Numerical representation of the text             |
+| Metadata      | Additional information associated with the chunk |
+
+The important idea is that the vector database stores the representations and associated information needed to find the relevant text later.
+
+## 4. How RAG Works — Step by Step
+
+Let's continue with our company example.
+
+Suppose a document contains the following information:
+
+> Employees can work from home three days a week.
+
+This document has already been divided into chunks, converted into embeddings, and stored in a vector database.
+
+Now an employee asks:
+
+> "What is my company's work-from-home policy?"
+
+The RAG workflow helps the LLM find and use the relevant information.
+
+### Step 1: The User Asks a Question
+
+```
+"What is my company's work-from-home policy?"
+```
+
+The application receives this question.
+
+### Step 2: Convert the Question into an Embedding
+
+The question is passed through an embedding model to create its vector representation.
+
+```
+User Question
+      |
+      v
+Embedding Model
+      |
+      v
+Query Embedding
+```
+
+The query embedding represents the question numerically.
+
+### Step 3: Search the Vector Database
+
+The query embedding is used to search the vector database for relevant chunks.
+
+For example, the database might contain:
+
+```
+Chunk A:
+"Employees can work from home three days a week."
+
+Chunk B:
+"Employees receive annual leave according to company policy."
+
+Chunk C:
+"All employees must complete security training."
+```
+
+The first chunk is the most relevant to the user's question.
+
+The vector database returns the relevant information based on the search.
+
+```
+Query Embedding
+       |
+       v
+ Vector Database
+       |
+       v
+Relevant Chunks
+```
+
+### Step 4: Provide the Retrieved Information to the LLM
+
+The RAG workflow takes the user's original question and the retrieved text and combines them into the context provided to the LLM.
+
+Conceptually, the prompt could look like this:
+
+```
+User Question:
+What is my company's work-from-home policy?
+
+Relevant Company Information:
+Employees can work from home three days a week.
+
+Instruction:
+Answer the user's question using the information provided.
+```
+
+The LLM now has access to the relevant company information within its current input context.
+
+The model does not need to be retrained just to receive this information.
+
+### Step 5: The LLM Generates the Answer
+
+Using the question and the retrieved information, the LLM can generate an answer such as:
+
+```
+According to the provided company policy,
+employees can work from home three days a week.
+```
+
+The complete process looks like this:
+
+\#chatgpt-mermaid-\_r_1qb\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI","Helvetica","Apple Color Emoji","Arial",sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_1qb\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1qb\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1qb\_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-\_r_1qb\_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1qb\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_1qb\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_1qb\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_1qb\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_1qb\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_1qb\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_1qb\_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-\_r_1qb\_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-\_r_1qb\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI","Helvetica","Apple Color Emoji","Arial",sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_1qb\_ p{margin:0;}#chatgpt-mermaid-\_r_1qb\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI","Helvetica","Apple Color Emoji","Arial",sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1qb\_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1qb\_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1qb\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_1qb\_ .label text,#chatgpt-mermaid-\_r_1qb\_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1qb\_ .node rect,#chatgpt-mermaid-\_r_1qb\_ .node circle,#chatgpt-mermaid-\_r_1qb\_ .node ellipse,#chatgpt-mermaid-\_r_1qb\_ .node polygon,#chatgpt-mermaid-\_r_1qb\_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-\_r_1qb\_ .rough-node .label text,#chatgpt-mermaid-\_r_1qb\_ .node .label text,#chatgpt-mermaid-\_r_1qb\_ .image-shape .label,#chatgpt-mermaid-\_r_1qb\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_1qb\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_1qb\_ .rough-node .label,#chatgpt-mermaid-\_r_1qb\_ .node .label,#chatgpt-mermaid-\_r_1qb\_ .image-shape .label,#chatgpt-mermaid-\_r_1qb\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_1qb\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_1qb\_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-\_r_1qb\_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-\_r_1qb\_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-\_r_1qb\_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-\_r_1qb\_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-\_r_1qb\_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-\_r_1qb\_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-\_r_1qb\_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-\_r_1qb\_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_1qb\_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1qb\_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1qb\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI","Helvetica","Apple Color Emoji","Arial",sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_1qb\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1qb\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_1qb\_ .icon-shape,#chatgpt-mermaid-\_r_1qb\_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-\_r_1qb\_ .icon-shape p,#chatgpt-mermaid-\_r_1qb\_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-\_r_1qb\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_1qb\_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-\_r_1qb\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_1qb\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_1qb\_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_1qb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_1qb\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_1qb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_1qb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1qb\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_1qb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1qb\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-\_r_1qb\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-\_r_1qb\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_1qb\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_1qb\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-\_r_1qb\_ .node rect,#chatgpt-mermaid-\_r_1qb\_ .node circle,#chatgpt-mermaid-\_r_1qb\_ .node ellipse,#chatgpt-mermaid-\_r_1qb\_ .node polygon,#chatgpt-mermaid-\_r_1qb\_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_1qb\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_1qb\_ .node.mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2px,2px;}#chatgpt-mermaid-\_r_1qb\_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_1qb\_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-\_r_1qb\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI","Helvetica","Apple Color Emoji","Arial",sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}User QuestionCreate Query EmbeddingSearch Vector DatabaseRetrieve Relevant ChunksCombine Question andRetrieved ContextLLMGenerated Answer
+
+This is the central idea behind RAG.
+
+## 5. The Most Important Concept: RAG Is a Workflow, Not a Single Tool
+
+RAG is not simply a software package that you download and use as a complete system.
+
+It is an architecture or workflow that connects different components.
+
+A typical workflow includes:
+
+```
+Documents
+    |
+    v
+Chunking
+    |
+    v
+Embedding Model
+    |
+    v
+Vector Database
+    |
+    |         User Question
+    |                |
+    |                v
+    |         Query Embedding
+    |                |
+    +-------> Vector Search
+                     |
+                     v
+            Retrieved Chunks
+                     |
+                     v
+             LLM + Context
+                     |
+                     v
+                 Answer
+```
+
+The individual components have different responsibilities:
+
+- Chunking: Divides documents into smaller pieces.
+- Embedding model: Converts text into numerical vectors.
+- Vector database: Stores embeddings and helps find relevant information.
+- RAG workflow: Connects retrieval with the LLM's generation process.
+- LLM: Generates the response using the provided question and context.
+
+Understanding how these components work together is more important than treating RAG as a single product.
+
+## 6. Why Is RAG Useful?
+
+RAG is particularly useful when an AI application needs to answer questions using information that is not already available in the model's learned knowledge.
+
+### 1. Work with Private Company Documents
+
+A company can make internal policies, technical documentation, and other authorized documents available to an AI application through retrieval.
+
+### 2. Avoid Retraining the Entire Model
+
+Instead of retraining an LLM whenever external information needs to be supplied, the application can retrieve relevant information and provide it as context.
+
+### 3. Provide Only Relevant Information
+
+Imagine a company has 100,000 document chunks.
+
+An employee asks about the work-from-home policy.
+
+The application does not need to provide all 100,000 chunks to the LLM. It retrieves the relevant information and supplies that information with the question.
+
+```
+All Company Information
+          |
+          v
+   Retrieve Relevant
+      Information
+          |
+          v
+     Selected Chunks
+          |
+          v
+          LLM
+```
+
+This helps avoid sending the entire knowledge base to the model for every question.
+
+### 4. Build Internal Knowledge Assistants
+
+RAG can be used to build AI applications that answer questions using an organization's internal knowledge base, including company policies, support documentation, and technical documents.
+
+## 7. Important Design Decisions in RAG
+
+Building a RAG workflow involves several design decisions. The transcript highlights the following.
+
+### A. Chunk Size
+
+Chunk size means how much text is included in each chunk.
+
+Consider two extremes.
+
+Chunks that are too large
+
+A single chunk might contain several unrelated topics. When retrieved, it may include unnecessary information that distracts from the relevant content.
+
+Chunks that are too small
+
+A chunk might contain too little information to explain the topic properly. It may lose the surrounding context needed to understand its meaning.
+
+Therefore, we need to find a suitable balance.
+
+```
+Too Large
+   |
+   v
+More Irrelevant Information
+
+Too Small
+   |
+   v
+Potentially Missing Context
+
+Balanced Size
+   |
+   v
+Useful, Meaningful Chunks
+```
+
+The appropriate size depends on the documents and the information the application needs to retrieve.
+
+### B. Choice of Embedding Model
+
+The embedding model converts document chunks and user questions into vectors.
+
+The choice of embedding model affects how information is represented and, consequently, how well the system can retrieve relevant content.
+
+### C. Number of Chunks to Retrieve
+
+When a user submits a question, the system must decide how many relevant chunks to retrieve from the vector database.
+
+Retrieving too few chunks may omit useful information. Retrieving too many may introduce unnecessary content into the LLM's context.
+
+These decisions are important when designing the RAG workflow.
+
+## 8. Tools and Platforms Mentioned in the Transcript
+
+The transcript mentions a few options for building or using RAG-based solutions.
+
+### Enterprise Solutions
+
+- Glean
+- Amazon Q
+
+These are examples of enterprise-oriented solutions that companies can use to access organizational information through AI.
+
+### Open-Source Frameworks
+
+- LangChain
+- LlamaIndex
+
+These provide tools that developers can assemble to build their own RAG workflows.
+
+The distinction presented in the transcript is that some enterprise solutions are available as more complete offerings, whereas open-source frameworks provide components that developers use to construct their own applications.
+
+These tools are ways to implement or use RAG; RAG itself is the underlying workflow, not a particular framework.
+
+## 9. Connecting Everything We Have Learned
+
+Let's connect the previous sections to this one.
+
+### Section 1: LLM
+
+An LLM generates text by predicting tokens based on the input context.
+
+### Section 2: Tokens
+
+Text is divided into smaller units called tokens, which are represented by numerical token IDs.
+
+### Section 3: Embeddings
+
+An embedding model converts text into numerical vectors that can be used to compare related information.
+
+### Section 4: Vector Database
+
+A vector database stores embeddings and supports searching for relevant, similar information.
+
+### Section 5: RAG
+
+RAG retrieves relevant information from the vector database and provides it to the LLM as additional context.
+
+\#chatgpt-mermaid-\_r_1rb\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI","Helvetica","Apple Color Emoji","Arial",sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_1rb\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1rb\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1rb\_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-\_r_1rb\_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1rb\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_1rb\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_1rb\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_1rb\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_1rb\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_1rb\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_1rb\_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-\_r_1rb\_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-\_r_1rb\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI","Helvetica","Apple Color Emoji","Arial",sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_1rb\_ p{margin:0;}#chatgpt-mermaid-\_r_1rb\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI","Helvetica","Apple Color Emoji","Arial",sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1rb\_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1rb\_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1rb\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_1rb\_ .label text,#chatgpt-mermaid-\_r_1rb\_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1rb\_ .node rect,#chatgpt-mermaid-\_r_1rb\_ .node circle,#chatgpt-mermaid-\_r_1rb\_ .node ellipse,#chatgpt-mermaid-\_r_1rb\_ .node polygon,#chatgpt-mermaid-\_r_1rb\_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-\_r_1rb\_ .rough-node .label text,#chatgpt-mermaid-\_r_1rb\_ .node .label text,#chatgpt-mermaid-\_r_1rb\_ .image-shape .label,#chatgpt-mermaid-\_r_1rb\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_1rb\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_1rb\_ .rough-node .label,#chatgpt-mermaid-\_r_1rb\_ .node .label,#chatgpt-mermaid-\_r_1rb\_ .image-shape .label,#chatgpt-mermaid-\_r_1rb\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_1rb\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_1rb\_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-\_r_1rb\_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-\_r_1rb\_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-\_r_1rb\_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-\_r_1rb\_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-\_r_1rb\_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-\_r_1rb\_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-\_r_1rb\_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-\_r_1rb\_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_1rb\_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1rb\_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1rb\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI","Helvetica","Apple Color Emoji","Arial",sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_1rb\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-\_r_1rb\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_1rb\_ .icon-shape,#chatgpt-mermaid-\_r_1rb\_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-\_r_1rb\_ .icon-shape p,#chatgpt-mermaid-\_r_1rb\_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-\_r_1rb\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_1rb\_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-\_r_1rb\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_1rb\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_1rb\_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_1rb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_1rb\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_1rb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_1rb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1rb\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_1rb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1rb\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-\_r_1rb\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-\_r_1rb\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_1rb\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_1rb\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-\_r_1rb\_ .node rect,#chatgpt-mermaid-\_r_1rb\_ .node circle,#chatgpt-mermaid-\_r_1rb\_ .node ellipse,#chatgpt-mermaid-\_r_1rb\_ .node polygon,#chatgpt-mermaid-\_r_1rb\_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_1rb\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_1rb\_ .node.mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2px,2px;}#chatgpt-mermaid-\_r_1rb\_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_1rb\_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-\_r_1rb\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI","Helvetica","Apple Color Emoji","Arial",sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Company DocumentsChunkingEmbedding ModelVector DatabaseUser QuestionQuery EmbeddingRelevant ChunksQuestion + Retrieved ContextLLMGenerated Answer
+
+This is how the concepts fit together to support an AI application that can answer questions using external knowledge.
+
+## 10. What Comes Next?
+
+We now understand how an LLM can receive information from an external knowledge source without requiring the entire model to be retrained.
+
+But another question remains:
+
+How does the LLM actually process the words and context it receives to produce an answer?
+
+How does it use the relationships between words in a sentence? How does it determine which parts of the input are relevant to one another?
+
+To explore those questions, we need to understand the Transformer architecture, which is the next topic in the learning journey.
