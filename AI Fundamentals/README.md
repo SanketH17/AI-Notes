@@ -1,5 +1,11 @@
 # AI Fundamentals
 
+## Table of Contents
+
+1. [Section 1: LLM and Introduction to LLM](#section-1-llm-and-introduction-to-llm)
+2. [Section 2: Tokens](#section-2-tokens)
+3. [Section 3: What Are Embeddings?](#section-3-what-are-embeddings)
+4. [Section 4: Where Does AI Store Its Memories? → Vector Database](#section-4--where-does-ai-store-its-memories--vector-database)
 
 ---
 
