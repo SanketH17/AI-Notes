@@ -5,7 +5,10 @@
 1. [Section 1: LLM and Introduction to LLM](#section-1-llm-and-introduction-to-llm)
 2. [Section 2: Tokens](#section-2-tokens)
 3. [Section 3: What Are Embeddings?](#section-3-what-are-embeddings)
-4. [Section 4: Where Does AI Store Its Memories? → Vector Database](#section-4--where-does-ai-store-its-memories--vector-database)
+4. [Summary & Review](#summary--review)
+5. [Section 4: Where Does AI Store Its Memories? → Vector Database](#section-4--where-does-ai-store-its-memories--vector-database)
+6. [Section 5: How to Give ChatGPT Your Private Data: RAG](#section-5--how-to-give-chatgpt-your-private-data-rag)
+7. [Section 6: What's Actually Inside an LLM? The Transformer Explained](#section-6--whats-actually-inside-an-llm-the-transformer-explained)
 
 ---
 
@@ -1715,7 +1718,7 @@ That is the problem that **RAG (Retrieval-Augmented Generation)** is introduced 
 
 # Section 5 — How to Give ChatGPT Your Private Data: RAG
 
-## 1. The Problem: LLMs Don't Automatically Know Your Private Data
+## 5.1 The Problem: LLMs Don't Automatically Know Your Private Data
 
 Imagine a company wants to build an AI assistant that answers employees' questions about internal company policies.
 
@@ -1749,7 +1752,7 @@ We need another way to provide the model with the relevant company information w
 
 This is the problem that RAG helps solve.
 
-## 2. What Is RAG?
+## 5.2 What Is RAG?
 
 RAG stands for Retrieval-Augmented Generation.
 
@@ -1782,7 +1785,7 @@ Generate an Answer
 
 ![RAG Workflow](./imgs/img2.png)
 
-## 3. Before Understanding RAG, Let's Understand Chunking
+## 5.3 Before Understanding RAG, Let's Understand Chunking
 
 In the previous section, we learned that embeddings are stored in a vector database.
 
@@ -1862,7 +1865,7 @@ Conceptually, each stored record can contain:
 
 The important idea is that the vector database stores the representations and associated information needed to find the relevant text later.
 
-## 4. How RAG Works — Step by Step
+## 5.4 How RAG Works — Step by Step
 
 Let's continue with our company example.
 
@@ -1977,7 +1980,7 @@ flowchart TD
 
 This is the central idea behind RAG.
 
-## 5. The Most Important Concept: RAG Is a Workflow, Not a Single Tool
+## 5.5 The Most Important Concept: RAG Is a Workflow, Not a Single Tool
 
 RAG is not simply a software package that you download and use as a complete system.
 
@@ -2024,7 +2027,7 @@ The individual components have different responsibilities:
 
 Understanding how these components work together is more important than treating RAG as a single product.
 
-## 6. Why Is RAG Useful?
+## 5.6 Why Is RAG Useful?
 
 RAG is particularly useful when an AI application needs to answer questions using information that is not already available in the model's learned knowledge.
 
@@ -2064,7 +2067,7 @@ This helps avoid sending the entire knowledge base to the model for every questi
 
 RAG can be used to build AI applications that answer questions using an organization's internal knowledge base, including company policies, support documentation, and technical documents.
 
-## 7. Important Design Decisions in RAG
+## 5.7 Important Design Decisions in RAG
 
 Building a RAG workflow involves several design decisions.
 
@@ -2117,7 +2120,7 @@ Retrieving too few chunks may omit useful information. Retrieving too many may i
 
 These decisions are important when designing the RAG workflow.
 
-## 8. Tools and Platforms for RAG
+## 5.8 Tools and Platforms for RAG
 
 There are different options for building or using RAG-based solutions.
 
@@ -2139,7 +2142,7 @@ Some enterprise solutions are available as more complete offerings, whereas open
 
 These tools are ways to implement or use RAG; RAG itself is the underlying workflow, not a particular framework.
 
-## 9. Connecting Everything We Have Learned
+## 5.9 Connecting Everything We Have Learned
 
 Let's connect the previous sections to this one.
 
@@ -2179,7 +2182,7 @@ flowchart TD
 ```
 This is how the concepts fit together to support an AI application that can answer questions using external knowledge.
 
-## 10. What Comes Next?
+## 5.10 What Comes Next?
 
 We now understand how an LLM can receive information from an external knowledge source without requiring the entire model to be retrained.
 
@@ -2197,7 +2200,7 @@ To explore those questions, we need to understand the Transformer architecture, 
 
 # Section 6 — What's Actually Inside an LLM? The Transformer Explained
 
-## 1. The Problem: How Does an LLM Understand Relationships Between Words?
+## 6.1 The Problem: How Does an LLM Understand Relationships Between Words?
 
 In the previous section, we learned how RAG (Retrieval-Augmented Generation) retrieves relevant information from a vector database and provides it to an LLM.
 
@@ -2216,7 +2219,7 @@ To understand this, we need to learn about two important concepts:
 - Attention
 - Transformer
 
-## 2. Understanding the Problem Through an Example
+## 6.2 Understanding the Problem Through an Example
 
 Consider the following sentence:
 
@@ -2242,7 +2245,7 @@ An LLM also needs a mechanism to learn and identify such relationships.
 
 This is where attention becomes important.
 
-## 3. What Is Attention?
+## 6.3 What Is Attention?
 
 ### Simple Definition
 
@@ -2276,7 +2279,7 @@ The model learns patterns from training data that help it identify useful relati
 
 In this example, the relationship between "he" and "boy" is important for interpreting the sentence correctly.
 
-## 4. How Does the Model Learn These Relationships?
+## 6.4 How Does the Model Learn These Relationships?
 
 An LLM is trained on large amounts of text.
 
@@ -2302,7 +2305,7 @@ The key idea is:
 
 Attention uses learned relationships to help the model determine which parts of the input are relevant to one another.
 
-## 5. How Do Embeddings Connect to Attention?
+## 6.5 How Do Embeddings Connect to Attention?
 
 In the previous sections, we learned about embeddings.
 
@@ -2347,7 +2350,7 @@ Comparing vectors using a dot product can help explain the mathematical intuitio
 
 We will explore the underlying calculation through Query (Q), Key (K), and Value (V) in the next section.
 
-## 6. What Is a Transformer?
+## 6.6 What Is a Transformer?
 
 Now that we understand attention, let's understand the Transformer.
 
@@ -2376,7 +2379,7 @@ Therefore:
 
 This distinction is important.
 
-## 7. What Are the Main Components of a Transformer?
+## 6.7 What Are the Main Components of a Transformer?
 
 The Transformer architecture contains several components, including:
 
@@ -2392,7 +2395,7 @@ The components work together as part of the overall architecture to process inpu
 
 We will explore the internal details of these components gradually.
 
-## 8. How Are LLM, Transformer, and Attention Different?
+## 6.8 How Are LLM, Transformer, and Attention Different?
 
 These three terms are related, but they mean different things.
 
@@ -2427,7 +2430,7 @@ For example, ChatGPT uses Transformer-based models.
 
 The Transformer architecture provides the model's overall design, while attention is one of the important mechanisms within that design.
 
-## 9. Where Does the Transformer Fit Into RAG?
+## 6.9 Where Does the Transformer Fit Into RAG?
 
 Let's connect everything we have learned.
 
@@ -2470,7 +2473,7 @@ LLM response:
 
 RAG supplies relevant external information. The Transformer-based LLM processes the supplied context and generates the response.
 
-## 10. RAG vs Transformer
+## 6.10 RAG vs Transformer
 
 Although both are important in modern AI applications, they solve different problems.
 
@@ -2490,7 +2493,7 @@ The Transformer architecture defines how the model processes its input.
 
 RAG and Transformer are not alternatives to each other. They can work together in the same AI application.
 
-## 11. The Complete Mental Model
+## 6.11 The Complete Mental Model
 
 Let's connect all the concepts from our AI fundamentals journey.
 
@@ -2536,7 +2539,7 @@ Here is what each stage does:
 6. Transformer: Provides the architecture used by the model.
 7. Attention: Helps the model identify relationships between tokens.
 
-## 12. What We Will Learn Next
+## 6.12 What We Will Learn Next
 
 We now know that attention helps a Transformer-based model determine which tokens are relevant to one another.
 
@@ -2551,3 +2554,237 @@ To answer these questions, we will learn about three important terms:
 - Value (V)
 
 These will help us understand how the attention mechanism works mathematically.
+
+
+
+
+# Section 7 — How Transformers Use Query, Key, and Value (Q, K, V)
+
+## 7.1 Where Do Q, K, and V Fit In?
+
+In the previous section, we learned that **attention** helps a Transformer determine how relevant one token is to other tokens in the same input.
+
+Query, Key, and Value explain how attention makes that decision.
+
+```text
+Text
+  ↓
+Tokens
+  ↓
+Token IDs
+  ↓
+Embeddings
+  ↓
+Transformer
+  ↓
+Q, K, and V vectors for every token
+  ↓
+Attention
+```
+
+For learning purposes, consider this sentence:
+
+```text
+The cat is walking.
+```
+
+We will assume that each word is one token. Real tokenization can split text differently, but this makes the example easier to follow.
+
+Each token first has an embedding. The Transformer then creates three vectors from that embedding:
+
+```text
+Token embedding
+      ↓
+Transformer
+      ↓
+Query (Q)   Key (K)   Value (V)
+```
+
+So every token has its own Q, K, and V vectors:
+
+```text
+"The"      → Q₍The₎, K₍The₎, V₍The₎
+"cat"      → Q₍cat₎, K₍cat₎, V₍cat₎
+"is"       → Q₍is₎, K₍is₎, V₍is₎
+"walking"  → Q₍walking₎, K₍walking₎, V₍walking₎
+```
+
+## 7.2 A Simple Library Analogy
+
+Imagine that you ask a librarian:
+
+> “I need a book about AWS security.”
+
+Your request is the **Query**.
+
+The library has many books. Each book has a subject or identifier that helps the librarian judge whether it matches your request. This is like a **Key**.
+
+Once the librarian selects a relevant book, the useful information inside that book is like its **Value**.
+
+| Attention term | Library analogy | Purpose |
+| --- | --- | --- |
+| **Query (Q)** | Your request for an AWS security book | What we are looking for |
+| **Key (K)** | The subject/identifier of each book | Helps measure relevance to the request |
+| **Value (V)** | The information inside a book | The information we take from a relevant match |
+
+For example, a book about AWS security is a stronger match for the query than a book about cricket.
+
+## 7.3 Using Q and K to Find Relevance
+
+Suppose we want to calculate attention for the token:
+
+```text
+"The"
+```
+
+For this calculation:
+
+```text
+Query = Q₍The₎
+```
+
+We compare this Query with the Keys of the other tokens:
+
+```text
+Q₍The₎  ·  K₍cat₎
+Q₍The₎  ·  K₍is₎
+Q₍The₎  ·  K₍walking₎
+```
+
+The `·` represents a **dot product**—a mathematical comparison between two vectors.
+
+Each comparison produces a raw **attention score**:
+
+```text
+Q₍The₎ · K₍cat₎      → score for "cat"
+Q₍The₎ · K₍is₎       → score for "is"
+Q₍The₎ · K₍walking₎  → score for "walking"
+```
+
+The score tells us how strongly the Key matches the Query. A higher score means a stronger match in this attention calculation.
+
+## 7.4 Turning Scores into Attention Weights
+
+Raw attention scores are passed through a function called **softmax**.
+
+At this level, the important thing to know is:
+
+```text
+Attention scores
+       ↓
+     Softmax
+       ↓
+Attention weights
+```
+
+Attention weights express how much each token's Value should contribute. They can be read like percentages, and together they add up to 100%.
+
+For example, the calculation might produce these illustrative weights:
+
+```text
+"cat"      → 80%
+"is"       → 5%
+"walking"  → 15%
+```
+
+This means that the Value of `"cat"` contributes the most information to the attention output for `"The"`.
+
+> The numbers above are only for intuition. In a real calculation, softmax determines the exact weights from the attention scores.
+
+## 7.5 Using V to Produce the Attention Output
+
+The attention weights are applied to the corresponding Value vectors.
+
+Using the illustrative weights above:
+
+```text
+Attention output for "The"
+  = 80% of V₍cat₎
+  +  5% of V₍is₎
+  + 15% of V₍walking₎
+```
+
+In other words:
+
+```text
+Q decides what to look for.
+K helps measure how relevant each token is.
+V provides the information that is combined.
+```
+
+The result is the attention output for the token `"The"`—a representation influenced most by the tokens that attention found most relevant.
+
+## 7.6 The Same Process Happens for Every Token
+
+So far, we calculated attention only for `"The"`.
+
+The Transformer repeats the same process for every token:
+
+```text
+For "The"      → use Q₍The₎ and compare it with the Keys
+For "cat"      → use Q₍cat₎ and compare it with the Keys
+For "is"       → use Q₍is₎ and compare it with the Keys
+For "walking"  → use Q₍walking₎ and compare it with the Keys
+```
+
+This allows the model to calculate how each token relates to the other tokens in the input.
+
+```mermaid
+flowchart TD
+    A[Token embeddings] --> B[Create Q, K, and V for every token]
+    B --> C[Choose one token's Query]
+    C --> D[Compare the Query with all Keys]
+    D --> E[Attention scores]
+    E --> F[Softmax]
+    F --> G[Attention weights]
+    G --> H[Use the weights to combine Values]
+    H --> I[Attention output for that token]
+```
+
+## 7.7 Why It Is Called Self-Attention
+
+When we calculated attention for `"The"`, we compared it with tokens from the same sentence:
+
+```text
+The cat is walking.
+```
+
+The tokens are looking at other tokens within the same input. That is why this mechanism is called **self-attention**.
+
+```text
+One input sentence
+      ↓
+Tokens inside that sentence compare with one another
+      ↓
+Self-attention
+```
+
+## 7.8 The Complete Picture
+
+The complete idea is:
+
+```text
+Token
+  ↓
+Token ID
+  ↓
+Embedding
+  ↓
+Q, K, V vectors
+  ↓
+Compare one Query with the Keys
+  ↓
+Attention scores
+  ↓
+Softmax
+  ↓
+Attention weights
+  ↓
+Weighted combination of Values
+  ↓
+Attention output
+```
+
+Q and K help the model decide what is relevant and by how much. V carries the information that is combined to create the attention output.
+
+This is how attention helps a Transformer identify relationships between tokens in the same input.
