@@ -1780,6 +1780,8 @@ Give Information to the LLM
 Generate an Answer
 ```
 
+![RAG Workflow](./imgs/img2.png)
+
 ## 3. Before Understanding RAG, Let's Understand Chunking
 
 In the previous section, we learned that embeddings are stored in a vector database.
@@ -2064,7 +2066,7 @@ RAG can be used to build AI applications that answer questions using an organiza
 
 ## 7. Important Design Decisions in RAG
 
-Building a RAG workflow involves several design decisions. The transcript highlights the following.
+Building a RAG workflow involves several design decisions.
 
 ### A. Chunk Size
 
@@ -2115,9 +2117,9 @@ Retrieving too few chunks may omit useful information. Retrieving too many may i
 
 These decisions are important when designing the RAG workflow.
 
-## 8. Tools and Platforms Mentioned in the Transcript
+## 8. Tools and Platforms for RAG
 
-The transcript mentions a few options for building or using RAG-based solutions.
+There are different options for building or using RAG-based solutions.
 
 ### Enterprise Solutions
 
@@ -2133,7 +2135,7 @@ These are examples of enterprise-oriented solutions that companies can use to ac
 
 These provide tools that developers can assemble to build their own RAG workflows.
 
-The distinction presented in the transcript is that some enterprise solutions are available as more complete offerings, whereas open-source frameworks provide components that developers use to construct their own applications.
+Some enterprise solutions are available as more complete offerings, whereas open-source frameworks provide components that developers use to construct their own applications.
 
 These tools are ways to implement or use RAG; RAG itself is the underlying workflow, not a particular framework.
 
@@ -2188,3 +2190,364 @@ How does the LLM actually process the words and context it receives to produce a
 How does it use the relationships between words in a sentence? How does it determine which parts of the input are relevant to one another?
 
 To explore those questions, we need to understand the Transformer architecture, which is the next topic in the learning journey.
+
+
+
+
+
+# Section 6 — What's Actually Inside an LLM? The Transformer Explained
+
+## 1. The Problem: How Does an LLM Understand Relationships Between Words?
+
+In the previous section, we learned how RAG (Retrieval-Augmented Generation) retrieves relevant information from a vector database and provides it to an LLM.
+
+For example, a user asks:
+
+> What is our company's work-from-home policy?
+
+RAG retrieves the relevant company documents and provides the user's question along with the retrieved information to the LLM.
+
+But an important question remains:
+
+How does the LLM process this information and understand the relationships between words to generate an answer?
+
+To understand this, we need to learn about two important concepts:
+
+- Attention
+- Transformer
+
+## 2. Understanding the Problem Through an Example
+
+Consider the following sentence:
+
+> The boy went to the shop because he needed milk.
+
+As humans, we can understand that the word "he" refers to the boy.
+
+But how does an AI model learn to recognize this relationship?
+
+To answer this question, let's look at how we understand the sentence.
+
+When we read it, we consider the surrounding words and the overall context.
+
+We understand that:
+
+- The boy is the person who went to the shop.
+- The word "he" refers to the person mentioned earlier.
+- The boy needed milk, which explains why he went to the shop.
+
+The surrounding words help us understand the relationship between different parts of the sentence.
+
+An LLM also needs a mechanism to learn and identify such relationships.
+
+This is where attention becomes important.
+
+## 3. What Is Attention?
+
+### Simple Definition
+
+Attention is a mechanism that helps an LLM determine which parts of the input are relevant to a particular word or token.
+
+In simple terms, attention helps the model decide:
+
+> Which other words should I pay more attention to when processing this word?
+
+Let's return to our example:
+
+> The boy went to the shop because he needed milk.
+
+When processing the word "he", the model considers other words in the sentence.
+
+Conceptually, it may assign different relevance scores to the words:
+
+| Word   | Illustrative relevance to "he" |
+| ------ | ------------------------------ |
+| boy    | High                           |
+| went   | Lower                          |
+| shop   | Lower                          |
+| needed | Lower                          |
+| milk   | Lower                          |
+
+These scores are only a simplified illustration, not actual calculated values.
+
+The important idea is that not all words contribute equally to understanding a particular word in context.
+
+The model learns patterns from training data that help it identify useful relationships.
+
+In this example, the relationship between "he" and "boy" is important for interpreting the sentence correctly.
+
+## 4. How Does the Model Learn These Relationships?
+
+An LLM is trained on large amounts of text.
+
+During training, it learns statistical patterns and relationships in language, including patterns involving grammar and context.
+
+For example, the model can learn that a pronoun such as "he" often refers to a person mentioned earlier in a sentence.
+
+Consider:
+
+```
+The boy went to the shop because he needed milk.
+```
+
+The model processes the sentence and learns patterns that help connect:
+
+```
+"he" → "boy"
+```
+
+This is a simplified example. Real language can be more complicated, and the correct interpretation depends on the entire context.
+
+The key idea is:
+
+Attention uses learned relationships to help the model determine which parts of the input are relevant to one another.
+
+## 5. How Do Embeddings Connect to Attention?
+
+In the previous sections, we learned about embeddings.
+
+An embedding is a numerical vector representation of a token or other data.
+
+For example, we can represent the words "boy" and "he" using vectors:
+
+```
+"boy" → [0.2, 0.7, 0.4, ...]
+"he"  → [0.5, 0.3, 0.8, ...]
+```
+
+These values are illustrative.
+
+Since neural networks perform mathematical computations, the model uses numerical representations when processing language.
+
+Attention involves mathematical calculations that help the model determine how different tokens relate to one another in context.
+
+A simplified conceptual flow is:
+
+```
+Input Text
+    |
+    v
+Tokens
+    |
+    v
+Numerical Representations
+    |
+    v
+Attention Calculations
+    |
+    v
+Relationships Between Tokens
+```
+
+These calculations help the model determine which parts of the input should influence its processing of a particular token.
+
+### A small clarification
+
+Comparing vectors using a dot product can help explain the mathematical intuition, but real attention calculations are more involved than simply calculating a dot product between the original word embeddings.
+
+We will explore the underlying calculation through Query (Q), Key (K), and Value (V) in the next section.
+
+## 6. What Is a Transformer?
+
+Now that we understand attention, let's understand the Transformer.
+
+### Simple Definition
+
+A Transformer is a neural-network architecture used to build AI models that process language and other types of data.
+
+An architecture is the overall design of a model and how its components work together.
+
+Think of a car.
+
+A car is a complete system made up of components such as:
+
+- Engine
+- Wheels
+- Brakes
+- Steering
+
+Similarly, a Transformer is an overall model architecture made up of multiple components that work together.
+
+Attention is one of its key components.
+
+Therefore:
+
+> Attention is a component of a Transformer, not the same thing as a Transformer.
+
+This distinction is important.
+
+## 7. What Are the Main Components of a Transformer?
+
+The Transformer architecture contains several components, including:
+
+| Component                  | Simple explanation                                                          |
+| -------------------------- | --------------------------------------------------------------------------- |
+| Attention                  | Helps the model identify relationships between different tokens.            |
+| Feed-Forward Network (FFN) | Performs additional neural-network computations on the representations.     |
+| Positional Information     | Helps the model account for the positions or order of tokens in a sequence. |
+
+Attention receives particular importance because it helps the model process relationships between tokens.
+
+The components work together as part of the overall architecture to process input and generate outputs.
+
+We will explore the internal details of these components gradually.
+
+## 8. How Are LLM, Transformer, and Attention Different?
+
+These three terms are related, but they mean different things.
+
+### LLM
+
+An LLM (Large Language Model) is a model trained on large amounts of text to learn language patterns and generate text.
+
+### Transformer
+
+A Transformer is an architecture used to build models that process sequences of data.
+
+### Attention
+
+Attention is a mechanism used within Transformer architectures to help model relationships between different tokens.
+
+Think of the relationship this way:
+
+```
+LLM
+ |
+ | Built using a Transformer-based architecture
+ v
+Transformer
+ |
+ | Contains components such as
+ v
+Attention + Feed-Forward Networks
+       + Other Components
+```
+
+For example, ChatGPT uses Transformer-based models.
+
+The Transformer architecture provides the model's overall design, while attention is one of the important mechanisms within that design.
+
+## 9. Where Does the Transformer Fit Into RAG?
+
+Let's connect everything we have learned.
+
+Suppose an employee asks:
+
+> What is our company's work-from-home policy?
+
+The company documents have already been converted into embeddings and stored in a vector database.
+
+RAG retrieves the relevant chunks and provides them to the LLM along with the user's question.
+
+The Transformer-based LLM then processes this input and generates a response.
+
+### Complete Flow
+
+```mermaid
+flowchart TD
+    A[User Question] --> B[RAG Workflow]
+    C[Vector Database] --> B
+    B --> D[Query + Relevant Context]
+    D --> E[LLM]
+    E --> F[Transformer Architecture]
+    F --> G[Attention + Other Components]
+    G --> H[Generated Response]
+```
+
+For example:
+
+User question:
+
+"What is our company's work-from-home policy?"
+
+Retrieved company information:
+
+"Employees can work from home three days a week."
+
+LLM response:
+
+"According to the provided company policy, employees can work from home three days a week."
+
+RAG supplies relevant external information. The Transformer-based LLM processes the supplied context and generates the response.
+
+## 10. RAG vs Transformer
+
+Although both are important in modern AI applications, they solve different problems.
+
+| Aspect                          | RAG                                                                             | Transformer                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| What is it?                     | A workflow for retrieving external information and providing it to an LLM       | A neural-network architecture                                    |
+| Main purpose                    | Find relevant information for a user's question                                 | Process input and support model predictions or generation        |
+| Uses mathematical calculations? | Yes, for tasks such as comparing embeddings and retrieving relevant information | Yes, for processing token representations and relationships      |
+| Main responsibility             | Retrieval and context preparation                                               | Processing the input and generating output                       |
+| Example                         | Retrieve relevant company policy documents                                      | Process the question and retrieved context to generate an answer |
+
+### Remember the difference
+
+RAG decides what relevant external information to retrieve and provide.
+
+The Transformer architecture defines how the model processes its input.
+
+RAG and Transformer are not alternatives to each other. They can work together in the same AI application.
+
+## 11. The Complete Mental Model
+
+Let's connect all the concepts from our AI fundamentals journey.
+
+
+```
+       USER QUERY
+           │
+           ▼
+     ┌─────────────┐       ┌─────────────┐
+     │ RAG Workflow│──────►│  Vector DB  │
+     │             │◄──────│             │
+     └──────┬──────┘       └─────────────┘
+            │              Relevant Chunks
+            ▼
+     ┌───────────────────┐
+     │ Query + Context   │
+     └─────────┬─────────┘
+               │
+               ▼
+     ┌───────────────────┐
+     │        LLM        │
+     │                   │
+     │ Transformer Model │
+     │        │          │
+     │ Attention + Other │
+     │   Components      │
+     └─────────┬─────────┘
+               │
+               ▼
+     ┌───────────────────┐
+     │ Generate Response │
+     └───────────────────┘
+```
+
+
+Here is what each stage does:
+
+1. Chunking: Divides large documents into smaller pieces.
+2. Embedding model: Converts text into numerical vectors.
+3. Vector database: Stores embeddings and helps retrieve relevant information.
+4. RAG: Combines the user's question with relevant retrieved information.
+5. LLM: Processes the input to generate a response.
+6. Transformer: Provides the architecture used by the model.
+7. Attention: Helps the model identify relationships between tokens.
+
+## 12. What We Will Learn Next
+
+We now know that attention helps a Transformer-based model determine which tokens are relevant to one another.
+
+But how does attention actually calculate these relationships?
+
+How does the model produce the scores that help it determine which information matters?
+
+To answer these questions, we will learn about three important terms:
+
+- Query (Q)
+- Key (K)
+- Value (V)
+
+These will help us understand how the attention mechanism works mathematically.
