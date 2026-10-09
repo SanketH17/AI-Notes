@@ -5,10 +5,10 @@
 1. [Section 1: LLM and Introduction to LLM](#section-1-llm-and-introduction-to-llm)
 2. [Section 2: Tokens](#section-2-tokens)
 3. [Section 3: What Are Embeddings?](#section-3-what-are-embeddings)
-4. [Summary & Review](#summary--review)
-5. [Section 4: Where Does AI Store Its Memories? → Vector Database](#section-4--where-does-ai-store-its-memories--vector-database)
-6. [Section 5: How to Give ChatGPT Your Private Data: RAG](#section-5--how-to-give-chatgpt-your-private-data-rag)
-7. [Section 6: What's Actually Inside an LLM? The Transformer Explained](#section-6--whats-actually-inside-an-llm-the-transformer-explained)
+4. [Section 4: Where Does AI Store Its Memories? → Vector Database](#section-4--where-does-ai-store-its-memories--vector-database)
+5. [Section 5: How to Give ChatGPT Your Private Data: RAG](#section-5--how-to-give-chatgpt-your-private-data-rag)
+6. [Section 6: What's Actually Inside an LLM? The Transformer Explained](#section-6--whats-actually-inside-an-llm-the-transformer-explained)
+7. [Section 7: How Transformers Use Query, Key, and Value (Q, K, V)](#section-7--how-transformers-use-query-key-and-value-q-k-v)
 
 ---
 
